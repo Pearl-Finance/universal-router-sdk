@@ -2317,6 +2317,19 @@
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
+"@uniswap/v3-sdk@github:Pearl-Finance/v3-sdk":
+  version "3.10.0"
+  resolved "https://codeload.github.com/Pearl-Finance/v3-sdk/tar.gz/fa40458d2d426c07dbca0cd6e074bba17b0f4e14"
+  dependencies:
+    "@ethersproject/abi" "^5.0.12"
+    "@ethersproject/solidity" "^5.0.9"
+    "@uniswap/sdk-core" "^4"
+    "@uniswap/swap-router-contracts" "^1.2.1"
+    "@uniswap/v3-periphery" "^1.1.1"
+    "@uniswap/v3-staker" "1.0.0"
+    tiny-invariant "^1.1.0"
+    tiny-warning "^1.0.3"
+
 "@uniswap/v3-staker@1.0.0":
   version "1.0.0"
   resolved "https://registry.npmjs.org/@uniswap/v3-staker/-/v3-staker-1.0.0.tgz"
