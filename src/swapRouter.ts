@@ -2,9 +2,9 @@ import invariant from 'tiny-invariant'
 import { abi } from '@uniswap/universal-router/artifacts/contracts/UniversalRouter.sol/UniversalRouter.json'
 import { Interface } from '@ethersproject/abi'
 import { BigNumber, BigNumberish } from 'ethers'
-import { MethodParameters } from '@uniswap/v3-sdk/src'
-import { Trade as RouterTrade } from '@uniswap/router-sdk/src'
-import { Currency, TradeType } from '@uniswap/sdk-core'
+import { MethodParameters } from '@uniswap/v3-sdk/dist'
+import { Trade as RouterTrade } from '@uniswap/router-sdk/dist'
+import { Currency, TradeType } from '@uniswap/sdk-core/dist'
 import { Command, RouterTradeType } from './entities/Command'
 import { Market, NFTTrade, SupportedProtocolsData } from './entities/NFTTrade'
 import { UniswapTrade, SwapOptions } from './entities/protocols/uniswap'
@@ -149,6 +149,7 @@ export abstract class SwapRouter {
     // TODO: use permit if signature included in swapOptions
     const planner = new RoutePlanner()
 
+    // @ts-ignore
     const trade: UniswapTrade = new UniswapTrade(trades, options)
 
     const inputCurrency = trade.trade.inputAmount.currency

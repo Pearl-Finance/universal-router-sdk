@@ -1,6 +1,6 @@
 import { RoutePlanner, CommandType } from '../../utils/routerCommands'
 import { Trade as V2Trade, Pair } from '@uniswap/v2-sdk'
-import { Trade as V3Trade, Pool, encodeRouteToPath } from '@uniswap/v3-sdk/src'
+import { Trade as V3Trade, Pool, encodeRouteToPath } from '@uniswap/v3-sdk/dist'
 import {
   Trade as RouterTrade,
   MixedRouteTrade,
@@ -14,9 +14,9 @@ import {
   getOutputOfPools,
   encodeMixedRouteToPath,
   partitionMixedRouteByProtocol,
-} from '@uniswap/router-sdk/src'
+} from '@uniswap/router-sdk/dist'
 import { Permit2Permit } from '../../utils/inputTokens'
-import { Currency, TradeType, CurrencyAmount, Percent } from '@uniswap/sdk-core'
+import { Currency, TradeType, CurrencyAmount, Percent } from '@uniswap/sdk-core/dist'
 import { Command, RouterTradeType, TradeConfig } from '../Command'
 import { SENDER_AS_RECIPIENT, ROUTER_AS_RECIPIENT, CONTRACT_BALANCE } from '../../utils/constants'
 import { encodeFeeBips } from '../../utils/numbers'
@@ -165,6 +165,7 @@ function addV2Swap<TInput extends Currency, TOutput extends Currency>(
   routerMustCustody: boolean
 ): void {
   const trade = new V2Trade(
+    // @ts-ignore
     route as RouteV2<TInput, TOutput>,
     tradeType == TradeType.EXACT_INPUT ? inputAmount : outputAmount,
     tradeType
@@ -200,12 +201,14 @@ function addV3Swap<TInput extends Currency, TOutput extends Currency>(
   routerMustCustody: boolean
 ): void {
   const trade = V3Trade.createUncheckedTrade({
+    // @ts-ignore
     route: route as RouteV3<TInput, TOutput>,
     inputAmount,
     outputAmount,
     tradeType,
   })
 
+  // @ts-ignore
   const path = encodeRouteToPath(route as RouteV3<TInput, TOutput>, trade.tradeType === TradeType.EXACT_OUTPUT)
   if (tradeType == TradeType.EXACT_INPUT) {
     planner.addCommand(CommandType.V3_SWAP_EXACT_IN, [

@@ -51,7 +51,7 @@
   "dependencies": {
     "@uniswap/permit2-sdk": "^1.2.0",
     "@uniswap/router-sdk": "github:Pearl-Finance/router-sdk",
-    "@uniswap/sdk-core": "^4.0.0",
+    "@uniswap/sdk-core": "github:Pearl-Finance/sdk-core",
     "@uniswap/universal-router": "1.6.0",
     "@uniswap/v2-sdk": "^3.2.0",
     "@uniswap/v3-sdk": "github:Pearl-Finance/v3-sdk",
