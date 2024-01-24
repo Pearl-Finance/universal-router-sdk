@@ -101,10 +101,10 @@ const CHAIN_CONFIGS: { [key: number]: ChainConfig } = {
   },
   // unreal
   [18231]: {
-    router: '0xf21A8aaE61c704219B00A20B2D882B180584E02b',
+    router: '0x4066cC981E598A193942EBb421e92c5d4c8b1073',
     weth: '0x9801EEB848987c0A8d6443912827bD36C288F8FB',
     creationBlock: 9643,
-  }
+  },
 }
 
 export const UNIVERSAL_ROUTER_ADDRESS = (chainId: number): string => {
