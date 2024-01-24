@@ -53,7 +53,7 @@
     "@uniswap/router-sdk": "github:Pearl-Finance/router-sdk",
     "@uniswap/sdk-core": "github:Pearl-Finance/sdk-core",
     "@uniswap/universal-router": "1.6.0",
-    "@uniswap/v2-sdk": "^3.2.0",
+    "@uniswap/v2-sdk": "github:Pearl-Finance/v2-sdk",
     "@uniswap/v3-sdk": "github:Pearl-Finance/v3-sdk",
     "bignumber.js": "^9.0.2",
     "ethers": "^5.3.1"

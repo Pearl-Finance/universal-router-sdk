@@ -8164,7 +8164,7 @@ var SeaportTrade = /*#__PURE__*/function (_NFTTrade) {
     var considerationRecipients = [];
     for (var i in protocolDatas) {
       var protocolData = protocolDatas[i];
-      var _loop = function _loop(j) {
+      var _loop = function _loop() {
         var item = protocolData.parameters.consideration[j];
         if (considerationRecipients.findIndex(function (x) {
           return x === item.recipient;
@@ -8187,7 +8187,7 @@ var SeaportTrade = /*#__PURE__*/function (_NFTTrade) {
         }
       };
       for (var j in protocolData.parameters.consideration) {
-        _loop(j);
+        _loop();
       }
     }
     return considerationFulfillments;
