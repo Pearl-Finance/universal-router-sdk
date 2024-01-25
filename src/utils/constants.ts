@@ -101,7 +101,7 @@ const CHAIN_CONFIGS: { [key: number]: ChainConfig } = {
   },
   // unreal
   [18231]: {
-    router: '0x4066cC981E598A193942EBb421e92c5d4c8b1073',
+    router: '0x5056c7bc25488d45a2C50e927484a2DF4B18096A',
     weth: '0x9801EEB848987c0A8d6443912827bD36C288F8FB',
     creationBlock: 9643,
   },
