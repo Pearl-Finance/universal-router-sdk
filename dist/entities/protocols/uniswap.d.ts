@@ -1,7 +1,7 @@
 import { RoutePlanner } from '../../utils/routerCommands';
-import { Trade as RouterTrade, SwapOptions as RouterSwapOptions } from '@uniswap/router-sdk/dist';
+import { Trade as RouterTrade, SwapOptions as RouterSwapOptions } from '@uniswap/router-sdk';
 import { Permit2Permit } from '../../utils/inputTokens';
-import { Currency, TradeType } from '@uniswap/sdk-core/dist';
+import { Currency, TradeType } from '@uniswap/sdk-core';
 import { Command, RouterTradeType, TradeConfig } from '../Command';
 import { BigNumberish } from 'ethers';
 export declare type FlatFeeOptions = {

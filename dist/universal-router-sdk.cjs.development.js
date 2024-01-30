@@ -10,11 +10,12 @@ var abi$7 = require('@ethersproject/abi');
 var ethers = require('ethers');
 var utils = require('ethers/lib/utils');
 var v2Sdk = require('@uniswap/v2-sdk');
-var dist = require('@uniswap/v3-sdk/dist');
-var dist$1 = require('@uniswap/router-sdk/dist');
-var dist$2 = require('@uniswap/sdk-core/dist');
+var v3Sdk = require('@uniswap/v3-sdk');
+var routerSdk = require('@uniswap/router-sdk');
+var sdkCore = require('@uniswap/sdk-core');
 require('jsbi');
 require('bignumber.js');
+var dist = require('@uniswap/v3-sdk/dist');
 
 function _extends() {
   _extends = Object.assign ? Object.assign.bind() : function (target) {
@@ -272,7 +273,7 @@ function encodeFeeBips(fee) {
   return dist.toHex(fee.multiply(10000).quotient);
 }
 
-var REFUND_ETH_PRICE_IMPACT_THRESHOLD = /*#__PURE__*/new dist$2.Percent(50, 100);
+var REFUND_ETH_PRICE_IMPACT_THRESHOLD = /*#__PURE__*/new sdkCore.Percent(50, 100);
 // Wrapper for uniswap router-sdk trade entity to encode swaps for Universal Router
 // also translates trade objects from previous (v2, v3) SDKs
 var UniswapTrade = /*#__PURE__*/function () {
@@ -299,20 +300,20 @@ var UniswapTrade = /*#__PURE__*/function () {
     //   1. when there are >2 exact input trades. this is only a heuristic,
     //      as it's still more gas-expensive even in this case, but has benefits
     //      in that the reversion probability is lower
-    var performAggregatedSlippageCheck = this.trade.tradeType === dist$2.TradeType.EXACT_INPUT && this.trade.routes.length > 2;
+    var performAggregatedSlippageCheck = this.trade.tradeType === sdkCore.TradeType.EXACT_INPUT && this.trade.routes.length > 2;
     var outputIsNative = this.trade.outputAmount.currency.isNative;
     var inputIsNative = this.trade.inputAmount.currency.isNative;
     var routerMustCustody = performAggregatedSlippageCheck || outputIsNative || hasFeeOption(this.options);
     for (var _iterator = _createForOfIteratorHelperLoose(this.trade.swaps), _step; !(_step = _iterator()).done;) {
       var swap = _step.value;
       switch (swap.route.protocol) {
-        case dist$1.Protocol.V2:
+        case routerSdk.Protocol.V2:
           addV2Swap(planner, swap, this.trade.tradeType, this.options, payerIsUser, routerMustCustody);
           break;
-        case dist$1.Protocol.V3:
+        case routerSdk.Protocol.V3:
           addV3Swap(planner, swap, this.trade.tradeType, this.options, payerIsUser, routerMustCustody);
           break;
-        case dist$1.Protocol.MIXED:
+        case routerSdk.Protocol.MIXED:
           addMixedSwap(planner, swap, this.trade.tradeType, this.options, payerIsUser, routerMustCustody);
           break;
         default:
@@ -329,7 +330,7 @@ var UniswapTrade = /*#__PURE__*/function () {
         planner.addCommand(exports.CommandType.PAY_PORTION, [this.trade.outputAmount.currency.wrapped.address, this.options.fee.recipient, feeBips]);
         // If the trade is exact output, and a fee was taken, we must adjust the amount out to be the amount after the fee
         // Otherwise we continue as expected with the trade's normal expected output
-        if (this.trade.tradeType === dist$2.TradeType.EXACT_OUTPUT) {
+        if (this.trade.tradeType === sdkCore.TradeType.EXACT_OUTPUT) {
           minimumAmountOut = minimumAmountOut.sub(minimumAmountOut.mul(feeBips).div(10000));
         }
       }
@@ -341,7 +342,7 @@ var UniswapTrade = /*#__PURE__*/function () {
         planner.addCommand(exports.CommandType.TRANSFER, [this.trade.outputAmount.currency.wrapped.address, this.options.flatFee.recipient, feeAmount]);
         // If the trade is exact output, and a fee was taken, we must adjust the amount out to be the amount after the fee
         // Otherwise we continue as expected with the trade's normal expected output
-        if (this.trade.tradeType === dist$2.TradeType.EXACT_OUTPUT) {
+        if (this.trade.tradeType === sdkCore.TradeType.EXACT_OUTPUT) {
           minimumAmountOut = minimumAmountOut.sub(feeAmount);
         }
       }
@@ -353,7 +354,7 @@ var UniswapTrade = /*#__PURE__*/function () {
         planner.addCommand(exports.CommandType.SWEEP, [this.trade.outputAmount.currency.wrapped.address, this.options.recipient, minimumAmountOut]);
       }
     }
-    if (inputIsNative && (this.trade.tradeType === dist$2.TradeType.EXACT_OUTPUT || riskOfPartialFill(this.trade))) {
+    if (inputIsNative && (this.trade.tradeType === sdkCore.TradeType.EXACT_OUTPUT || riskOfPartialFill(this.trade))) {
       // for exactOutput swaps that take native currency as input
       // we need to send back the change to the user
       planner.addCommand(exports.CommandType.UNWRAP_WETH, [this.options.recipient, 0]);
@@ -368,14 +369,14 @@ function addV2Swap(planner, _ref, tradeType, options, payerIsUser, routerMustCus
     outputAmount = _ref.outputAmount;
   var trade = new v2Sdk.Trade(
   // @ts-ignore
-  route, tradeType == dist$2.TradeType.EXACT_INPUT ? inputAmount : outputAmount, tradeType);
-  if (tradeType == dist$2.TradeType.EXACT_INPUT) {
+  route, tradeType == sdkCore.TradeType.EXACT_INPUT ? inputAmount : outputAmount, tradeType);
+  if (tradeType == sdkCore.TradeType.EXACT_INPUT) {
     planner.addCommand(exports.CommandType.V2_SWAP_EXACT_IN, [
     // if native, we have to unwrap so keep in the router for now
     routerMustCustody ? ROUTER_AS_RECIPIENT : options.recipient, trade.maximumAmountIn(options.slippageTolerance).quotient.toString(), trade.minimumAmountOut(options.slippageTolerance).quotient.toString(), route.path.map(function (pool) {
       return pool.address;
     }), payerIsUser]);
-  } else if (tradeType == dist$2.TradeType.EXACT_OUTPUT) {
+  } else if (tradeType == sdkCore.TradeType.EXACT_OUTPUT) {
     planner.addCommand(exports.CommandType.V2_SWAP_EXACT_OUT, [routerMustCustody ? ROUTER_AS_RECIPIENT : options.recipient, trade.minimumAmountOut(options.slippageTolerance).quotient.toString(), trade.maximumAmountIn(options.slippageTolerance).quotient.toString(), route.path.map(function (pool) {
       return pool.address;
     }), payerIsUser]);
@@ -386,7 +387,7 @@ function addV3Swap(planner, _ref2, tradeType, options, payerIsUser, routerMustCu
   var route = _ref2.route,
     inputAmount = _ref2.inputAmount,
     outputAmount = _ref2.outputAmount;
-  var trade = dist.Trade.createUncheckedTrade({
+  var trade = v3Sdk.Trade.createUncheckedTrade({
     // @ts-ignore
     route: route,
     inputAmount: inputAmount,
@@ -394,10 +395,10 @@ function addV3Swap(planner, _ref2, tradeType, options, payerIsUser, routerMustCu
     tradeType: tradeType
   });
   // @ts-ignore
-  var path = dist.encodeRouteToPath(route, trade.tradeType === dist$2.TradeType.EXACT_OUTPUT);
-  if (tradeType == dist$2.TradeType.EXACT_INPUT) {
+  var path = v3Sdk.encodeRouteToPath(route, trade.tradeType === sdkCore.TradeType.EXACT_OUTPUT);
+  if (tradeType == sdkCore.TradeType.EXACT_INPUT) {
     planner.addCommand(exports.CommandType.V3_SWAP_EXACT_IN, [routerMustCustody ? ROUTER_AS_RECIPIENT : options.recipient, trade.maximumAmountIn(options.slippageTolerance).quotient.toString(), trade.minimumAmountOut(options.slippageTolerance).quotient.toString(), path, payerIsUser]);
-  } else if (tradeType == dist$2.TradeType.EXACT_OUTPUT) {
+  } else if (tradeType == sdkCore.TradeType.EXACT_OUTPUT) {
     planner.addCommand(exports.CommandType.V3_SWAP_EXACT_OUT, [routerMustCustody ? ROUTER_AS_RECIPIENT : options.recipient, trade.minimumAmountOut(options.slippageTolerance).quotient.toString(), trade.maximumAmountIn(options.slippageTolerance).quotient.toString(), path, payerIsUser]);
   }
 }
@@ -409,7 +410,7 @@ function addMixedSwap(planner, swap, tradeType, options, payerIsUser, routerMust
   var tradeRecipient = routerMustCustody ? ROUTER_AS_RECIPIENT : options.recipient;
   // single hop, so it can be reduced to plain v2 or v3 swap logic
   if (route.pools.length === 1) {
-    if (route.pools[0] instanceof dist.Pool) {
+    if (route.pools[0] instanceof v3Sdk.Pool) {
       return addV3Swap(planner, swap, tradeType, options, payerIsUser, routerMustCustody);
     } else if (route.pools[0] instanceof v2Sdk.Pair) {
       return addV2Swap(planner, swap, tradeType, options, payerIsUser, routerMustCustody);
@@ -417,7 +418,7 @@ function addMixedSwap(planner, swap, tradeType, options, payerIsUser, routerMust
       throw new Error('Invalid route type');
     }
   }
-  var trade = dist$1.MixedRouteTrade.createUncheckedTrade({
+  var trade = routerSdk.MixedRouteTrade.createUncheckedTrade({
     route: route,
     inputAmount: inputAmount,
     outputAmount: outputAmount,
@@ -427,7 +428,7 @@ function addMixedSwap(planner, swap, tradeType, options, payerIsUser, routerMust
   var amountOut = trade.minimumAmountOut(options.slippageTolerance, outputAmount).quotient.toString();
   // logic from
   // https://github.com/Uniswap/router-sdk/blob/d8eed164e6c79519983844ca8b6a3fc24ebcb8f8/src/swapRouter.ts#L276
-  var sections = dist$1.partitionMixedRouteByProtocol(route);
+  var sections = routerSdk.partitionMixedRouteByProtocol(route);
   var isLastSectionInRoute = function isLastSectionInRoute(i) {
     return i === sections.length - 1;
   };
@@ -436,18 +437,18 @@ function addMixedSwap(planner, swap, tradeType, options, payerIsUser, routerMust
   for (var i = 0; i < sections.length; i++) {
     var section = sections[i];
     /// Now, we get output of this section
-    outputToken = dist$1.getOutputOfPools(section, inputToken);
-    var newRouteOriginal = new dist$1.MixedRouteSDK([].concat(section), section[0].token0.equals(inputToken) ? section[0].token0 : section[0].token1, outputToken);
-    var newRoute = new dist$1.MixedRoute(newRouteOriginal);
+    outputToken = routerSdk.getOutputOfPools(section, inputToken);
+    var newRouteOriginal = new routerSdk.MixedRouteSDK([].concat(section), section[0].token0.equals(inputToken) ? section[0].token0 : section[0].token1, outputToken);
+    var newRoute = new routerSdk.MixedRoute(newRouteOriginal);
     /// Previous output is now input
     inputToken = outputToken;
     var mixedRouteIsAllV3 = function mixedRouteIsAllV3(route) {
       return route.pools.every(function (pool) {
-        return pool instanceof dist.Pool;
+        return pool instanceof v3Sdk.Pool;
       });
     };
     if (mixedRouteIsAllV3(newRoute)) {
-      var path = dist$1.encodeMixedRouteToPath(newRoute);
+      var path = routerSdk.encodeMixedRouteToPath(newRoute);
       planner.addCommand(exports.CommandType.V3_SWAP_EXACT_IN, [
       // if not last section: send tokens directly to the first v2 pair of the next section
       // note: because of the partitioning function we can be sure that the next section is v2

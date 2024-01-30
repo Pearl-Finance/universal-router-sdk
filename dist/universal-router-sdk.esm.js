@@ -4,11 +4,12 @@ import { Interface } from '@ethersproject/abi';
 import { BigNumber, ethers } from 'ethers';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { Trade, Pair } from '@uniswap/v2-sdk';
-import { toHex, Trade as Trade$1, encodeRouteToPath, Pool } from '@uniswap/v3-sdk/dist';
-import { Protocol, MixedRouteTrade, partitionMixedRouteByProtocol, getOutputOfPools, MixedRouteSDK, MixedRoute, encodeMixedRouteToPath } from '@uniswap/router-sdk/dist';
-import { TradeType, Percent } from '@uniswap/sdk-core/dist';
+import { Trade as Trade$1, encodeRouteToPath, Pool } from '@uniswap/v3-sdk';
+import { Protocol, MixedRouteTrade, partitionMixedRouteByProtocol, getOutputOfPools, MixedRouteSDK, MixedRoute, encodeMixedRouteToPath } from '@uniswap/router-sdk';
+import { TradeType, Percent } from '@uniswap/sdk-core';
 import 'jsbi';
 import 'bignumber.js';
+import { toHex } from '@uniswap/v3-sdk/dist';
 
 function _extends() {
   _extends = Object.assign ? Object.assign.bind() : function (target) {
